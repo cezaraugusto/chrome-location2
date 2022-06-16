@@ -11,7 +11,7 @@
     "chrome-location2": "bin.js"
   },
   "name": "chrome-location2",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Approximates the current location of the Chrome browser across platforms. Will fallback to Chromium if location is not found.",
   "main": "module.js",
   "author": {
