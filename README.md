@@ -26,11 +26,14 @@ console.log(chromeLocation())
 # /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 ```
 
-Open Chrome (remember to use quotes as Chrome's path usually has spaces in it):
+## Related projects
 
-```bash
-> "`chrome-location2`"
-```
+* [chrome-location](https://github.com/hughsk/chrome-location)
+* [edge-location](https://github.com/cezaraugusto/edge-location)
+* [firefox-location](https://github.com/hughsk/firefox-location)
+* [brave-location](https://github.com/cezaraugusto/brave-location)
+* [vivaldi-location](https://github.com/jandrey/vivaldi-location)
+* [opera-location](https://github.com/jandrey/opera-location)
 
 ## Acknowledgements
 
