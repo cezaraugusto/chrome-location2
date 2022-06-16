@@ -12,7 +12,7 @@ module.exports = function scanWindowsPath () {
   const suffix = '\\Google\\Chrome\\Application\\chrome.exe'
 
   for (const prefix of prefixes) {
-    const exe = path.join(prefixes[prefix], suffix)
+    const exe = path.join(prefix, suffix)
 
     if (fs.existsSync(exe)) {
       browserPath = exe
