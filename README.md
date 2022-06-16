@@ -5,7 +5,7 @@
 
 # chrome-location2 [![workflow][action-image]][action-url] [![npm][npm-image]][npm-url]
 
-> Approximates the current location of the Chrome browser across platforms. Will fallback to Chromium if location not found.
+> Approximates the current location of the Chrome browser across platforms. Will fallback to Chromium if location is not found.
 
 # Usage
 
