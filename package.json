@@ -1,0 +1,46 @@
+{
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cezaraugusto/chrome-location2.git"
+  },
+  "engines": {
+    "node": ">=10"
+  },
+  "bin": {
+    "chrome-location2": "bin.js"
+  },
+  "name": "chrome-location2",
+  "version": "1.0.0",
+  "description": "Approximates the current location of the Chrome browser across platforms",
+  "main": "module.js",
+  "author": {
+    "name": "Cezar Augusto",
+    "email": "boss@cezaraugusto.net",
+    "url": "https://cezaraugusto.net"
+  },
+  "scripts": {
+    "test": "jasmine"
+  },
+  "files": [
+    "module.js",
+    "bin.js",
+    "scan"
+  ],
+  "keywords": [
+    "chrome",
+    "browser",
+    "spawn",
+    "location",
+    "process",
+    "guesstimate"
+  ],
+  "dependencies": {
+    "userhome": "^1.0.0",
+    "which": "^2.0.2"
+  },
+  "devDependencies": {
+    "jasmine": "^4.2.0",
+    "mock-require": "^3.0.3"
+  }
+}
