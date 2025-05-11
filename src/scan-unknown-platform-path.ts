@@ -1,7 +1,7 @@
-const which = require('which');
+import which from 'which';
 
-module.exports = function scanUnknownPlatform () {
-  let browserPath = null
+export default function scanUnknownPlatform() {
+  let browserPath = null;
 
   try {
     browserPath = which.sync('google-chrome');
@@ -13,5 +13,5 @@ module.exports = function scanUnknownPlatform () {
     }
   }
 
-  return browserPath
+  return browserPath;
 }
