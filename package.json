@@ -4,29 +4,28 @@
     "type": "git",
     "url": "https://github.com/cezaraugusto/chrome-location2.git"
   },
-  "engines": {
-    "node": ">=10"
-  },
-  "bin": {
-    "chrome-location2": "bin.js"
-  },
   "name": "chrome-location2",
-  "version": "1.0.0",
-  "description": "Approximates the current location of the Chrome browser across platforms. Will fallback to Chromium if location is not found.",
-  "main": "module.js",
-  "author": {
-    "name": "Cezar Augusto",
-    "email": "boss@cezaraugusto.net",
-    "url": "https://cezaraugusto.net"
+  "version": "1.0.1",
+  "description": "Approximates the current location of the Chrome browser across platforms.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
   },
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
   "scripts": {
-    "test": "jasmine"
+    "build": "rslib build",
+    "check": "biome check --write",
+    "dev": "rslib build --watch",
+    "format": "biome format --write",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
   },
-  "files": [
-    "module.js",
-    "bin.js",
-    "scan"
-  ],
   "keywords": [
     "chrome",
     "browser",
@@ -40,7 +39,11 @@
     "which": "^2.0.2"
   },
   "devDependencies": {
-    "jasmine": "^4.2.0",
-    "mock-require": "^3.0.3"
+    "@biomejs/biome": "^1.9.4",
+    "@rslib/core": "^0.6.9",
+    "@types/node": "^22.8.1",
+    "@types/which": "^3.0.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.3"
   }
 }
