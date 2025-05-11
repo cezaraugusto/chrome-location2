@@ -18,7 +18,7 @@
 import chromeLocation from 'chrome-location2'
 
 // Returns the path to Chrome as a string
-console.log(chromeLocation)
+console.log(chromeLocation())
 // /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
 
 
