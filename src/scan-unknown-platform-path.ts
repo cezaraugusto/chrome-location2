@@ -1,6 +1,10 @@
 import which from 'which';
 
-export default function scanUnknownPlatform() {
+type WhichLike = { sync: (cmd: string) => string };
+type Deps = { which?: WhichLike };
+
+export default function scanUnknownPlatform(deps?: Deps) {
+  const w = deps?.which ?? which;
   const candidates = [
     'google-chrome',
     'google-chrome-beta',
@@ -11,7 +15,7 @@ export default function scanUnknownPlatform() {
 
   for (const cmd of candidates) {
     try {
-      const resolved = which.sync(cmd);
+      const resolved = w.sync(cmd);
       if (resolved) return resolved;
     } catch (_) {}
   }

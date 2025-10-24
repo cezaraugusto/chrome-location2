@@ -65,7 +65,6 @@ This table lists the default locations where Chrome is typically installed for e
         </ul>
       </td>
     </tr>
-
     <tr>
       <td rowspan="4" align="center"><img alt="" width="64" height="64" src="https://cdn.jsdelivr.net/gh/extension-js/media@db5deb23fbfa85530f8146718812972998e13a4d/platform_logos/windows.png" /><br><strong>Windows</strong></td>
       <td align="center">Chrome (Stable)</td>
@@ -107,7 +106,6 @@ This table lists the default locations where Chrome is typically installed for e
         </ul>
       </td>
     </tr>
-
     <tr>
       <td rowspan="4" align="center"><img alt="" width="64" height="64" src="https://cdn.jsdelivr.net/gh/extension-js/media@db5deb23fbfa85530f8146718812972998e13a4d/platform_logos/linux.png" /><br><strong>Linux/other</strong></td>
       <td align="center">Chrome (Stable)</td>
