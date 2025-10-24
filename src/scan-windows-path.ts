@@ -2,25 +2,25 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 export default function scanWindowsPath() {
-  let browserPath = null;
-
   const prefixes = [
     process.env.LOCALAPPDATA,
     process.env.PROGRAMFILES,
     process.env['PROGRAMFILES(X86)'],
+  ].filter(Boolean);
+
+  const suffixes = [
+    '\\Google\\Chrome\\Application\\chrome.exe',
+    '\\Google\\Chrome Beta\\Application\\chrome.exe',
+    '\\Google\\Chrome Dev\\Application\\chrome.exe',
+    '\\Google\\Chrome SxS\\Application\\chrome.exe', // Canary
   ];
-  const suffix = '\\Google\\Chrome\\Application\\chrome.exe';
 
   for (const prefix of prefixes) {
-    if (!prefix) continue;
-
-    const exe = path.join(prefix, suffix);
-
-    if (fs.existsSync(exe)) {
-      browserPath = exe;
-      break;
+    for (const suffix of suffixes) {
+      const exe = path.join(prefix as string, suffix);
+      if (fs.existsSync(exe)) return exe;
     }
   }
 
-  return browserPath;
+  return null;
 }

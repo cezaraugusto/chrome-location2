@@ -7,6 +7,12 @@
   "name": "chrome-location2",
   "version": "2.0.0",
   "description": "Approximates the current location of the Chrome browser across platforms.",
+  "homepage": "https://www.npmjs.com/package/chrome-location2",
+  "author": {
+    "name": "Cezar Augusto",
+    "email": "boss@cezaraugusto.net",
+    "url": "https://cezaraugusto.net"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -15,18 +21,27 @@
       "require": "./dist/index.cjs"
     }
   },
+  "bin": {
+    "chrome-location2": "bin.js"
+  },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "rslib build",
     "check": "biome check --write",
     "dev": "rslib build --watch",
     "format": "biome format --write",
-    "test": "vitest run",
-    "prepublishOnly": "npm run build"
+    "test": "vitest run --pool vmForks --poolOptions.vmForks.singleFork",
+    "prepublishOnly": "npm run build",
+    "publish:provenance": "np patch --no-tests --any-branch --yolo --message 'release: %s' --provenance"
+  },
+  "engines": {
+    "node": ">=18 <23"
+  },
+  "engineStrict": true,
+  "publishConfig": {
+    "provenance": true
   },
   "keywords": [
     "chrome",
@@ -47,5 +62,6 @@
     "@types/which": "^3.0.4",
     "typescript": "^5.8.3",
     "vitest": "^3.1.3"
-  }
+  },
+  "packageManager": "pnpm@9.9.0+sha512.60c18acd138bff695d339be6ad13f7e936eea6745660d4cc4a776d5247c540d0edee1a563695c183a66eb917ef88f2b4feb1fc25f32a7adcadc7aaf3438e99c1"
 }

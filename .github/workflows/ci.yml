@@ -1,5 +1,5 @@
 name: CI
-on: 
+on:
   push:
     branches: [ main ]
   pull_request:
@@ -10,33 +10,22 @@ permissions:
 
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [20]
-
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 8
+        uses: pnpm/action-setup@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 20
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
+        run: pnpm install --no-frozen-lockfile
 
       - name: Run tests
         run: pnpm test

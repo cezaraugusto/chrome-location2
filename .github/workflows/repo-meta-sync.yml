@@ -1,0 +1,52 @@
+name: Sync repo metadata from package.json
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - package.json
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read package.json fields
+        id: pkg
+        run: |
+          DESCRIPTION=$(node -p "require('./package.json').description || ''")
+          HOMEPAGE=$(node -p "require('./package.json').homepage || ''")
+          TOPICS=$(node -p "(require('./package.json').keywords || []).join('\n')")
+          echo "description<<EOF" >> $GITHUB_OUTPUT
+          echo "$DESCRIPTION" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "homepage=$HOMEPAGE" >> $GITHUB_OUTPUT
+          echo "topics<<EOF" >> $GITHUB_OUTPUT
+          echo "$TOPICS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Update repository metadata
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const description = `${{ steps.pkg.outputs.description }}`;
+            const homepage = `${{ steps.pkg.outputs.homepage }}`;
+            // Update repo description and homepage
+            await github.rest.repos.update({ owner, repo, description, homepage });
+            // Fetch existing topics
+            const current = await github.rest.repos.getAllTopics({ owner, repo });
+            const existing = new Set(current.data.names);
+            // Build desired from package.json keywords
+            const desired = `${{ steps.pkg.outputs.topics }}`.split('\n').map(s => s.trim()).filter(Boolean);
+            // You can prune or add freely; here we replace with desired list
+            await github.rest.repos.replaceAllTopics({ owner, repo, names: desired });
+
