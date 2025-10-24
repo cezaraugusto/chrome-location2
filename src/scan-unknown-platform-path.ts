@@ -1,17 +1,20 @@
 import which from 'which';
 
 export default function scanUnknownPlatform() {
-  let browserPath = null;
+  const candidates = [
+    'google-chrome',
+    'google-chrome-beta',
+    'google-chrome-unstable', // Canary on some distros
+    'chromium-browser',
+    'chromium',
+  ];
 
-  try {
-    browserPath = which.sync('google-chrome');
-  } catch (err) {
+  for (const cmd of candidates) {
     try {
-      browserPath = which.sync('chromium-browser');
-    } catch (err) {
-      browserPath = null;
-    }
+      const resolved = which.sync(cmd);
+      if (resolved) return resolved;
+    } catch (_) {}
   }
 
-  return browserPath;
+  return null;
 }
