@@ -11,13 +11,13 @@
 
 <img alt="Chrome" align="right" src="https://cdn.jsdelivr.net/gh/extension-js/media@db5deb23fbfa85530f8146718812972998e13a4d/browser_logos/svg/chrome.svg" width="10.5%" />
 
-* Finds Chrome in the following channel order: `stable` / `beta` / `dev` / `canary`.
+* By default checks only `stable`. Optionally can cascade to `beta` / `dev` / `canary`.
 * Supports macOS / Windows / Linux
 * Works both as an ES module or CommonJS
 
 ## Support table
 
-This table lists the default locations where Chrome is typically installed for each supported platform and channel. The package checks these paths (in order) and returns the first one found. 
+This table lists the default locations where Chrome is typically installed for each supported platform and channel. By default, only the Stable channel is checked. When fallback is enabled, the package checks these paths (in order) and returns the first one found.
 
 <table>
   <thead>
@@ -142,34 +142,42 @@ This table lists the default locations where Chrome is typically installed for e
   </tbody>
 </table>
 
-Returns the first existing path found, or <code>null</code> if none are found.
+Returns the first existing path found (given selected channels), or <code>null</code> if none are found.
 
 ## Usage
 
-**Via Node.js:**
+**Via Node.js (strict by default):**
 
 ```js
 import chromeLocation from "chrome-location2";
 
+// Strict (Stable only)
 console.log(chromeLocation());
-// /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+// => "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" or null
+
+// Enable fallback (Stable / Beta / Dev / Canary; includes Chromium on macOS/Windows; Chromium/Chromium-browser on Linux)
+console.log(chromeLocation(true));
+// => first found among Stable/Beta/Dev/Canary (or Chromium) or null
 ```
 
 **Via CLI:**
 
 ```bash
 npx chrome-location2
-# /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+# Strict (Stable only)
+
+npx chrome-location2 --fallback
+# Enable cascade (Stable / Beta / Dev / Canary)
 ```
 
 ## Related projects
 
-* [chrome-location](https://github.com/hughsk/chrome-location)
-* [edge-location](https://github.com/cezaraugusto/edge-location)
-* [firefox-location](https://github.com/hughsk/firefox-location)
 * [brave-location](https://github.com/cezaraugusto/brave-location)
-* [vivaldi-location](https://github.com/jandrey/vivaldi-location)
-* [opera-location](https://github.com/jandrey/opera-location)
+* [edge-location](https://github.com/cezaraugusto/edge-location)
+* [firefox-location2](https://github.com/cezaraugusto/firefox-location2)
+* [opera-location2](https://github.com/cezaraugusto/opera-location2)
+* [vivaldi-location2](https://github.com/cezaraugusto/vivaldi-location2)
+* [yandex-location2](https://github.com/cezaraugusto/yandex-location2)
 
 ## License
 
