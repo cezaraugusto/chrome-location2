@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 
-const api = require('./dist/index.cjs')
-const locateChrome = api.default || api
-const locateChromeOrExplain = api.locateChromeOrExplain || null
-const pintor = require('pintor')
+import locateChrome, {
+  locateChromeOrExplain,
+  getInstallGuidance
+} from './dist/index.js'
+import pintor from 'pintor'
 
 const argv = process.argv.slice(2)
 const allowFallback = argv.includes('--fallback') || argv.includes('-f')
 
 try {
-  const result = locateChromeOrExplain
+  const result = typeof locateChromeOrExplain === 'function'
     ? locateChromeOrExplain({allowFallback})
     : locateChrome(allowFallback)
 
   if (!result)
     throw new Error(
-      api.getInstallGuidance?.() || 'No suitable Chrome/Chromium binary found.'
+      (typeof getInstallGuidance === 'function' && getInstallGuidance()) ||
+        'No suitable Chrome/Chromium binary found.'
     )
   console.log(pintor.green(String(result)))
 } catch (e) {

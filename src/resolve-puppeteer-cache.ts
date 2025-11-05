@@ -20,9 +20,26 @@ export function resolveFromPuppeteerCache(deps?: {
       const home = deps?.homeDir ?? env.HOME ?? ''
       if (!home) return null
       const base = path.join(home, 'Library', 'Caches', 'puppeteer', 'chrome')
-      const candidates = listDirs(f, base)
-        .filter((d) => d.startsWith('mac-') || d.startsWith('mac_arm-'))
-        .map((d) =>
+      const dirs = listDirs(f, base).filter(
+        (d) => d.startsWith('mac-') || d.startsWith('mac_arm-') || d.startsWith('mac-arm')
+      )
+      const candidates: string[] = []
+
+      for (const d of dirs) {
+        // Newer layout includes chrome-mac subdirectory
+        candidates.push(
+          path.join(
+            base,
+            d,
+            'chrome-mac',
+            'Google Chrome for Testing.app',
+            'Contents',
+            'MacOS',
+            'Google Chrome for Testing'
+          )
+        )
+        // Older/alternate layout without chrome-mac
+        candidates.push(
           path.join(
             base,
             d,
@@ -32,6 +49,8 @@ export function resolveFromPuppeteerCache(deps?: {
             'Google Chrome for Testing'
           )
         )
+      }
+
       return firstExisting(f, candidates)
     }
 
@@ -41,11 +60,18 @@ export function resolveFromPuppeteerCache(deps?: {
       const base = path.join(lad, 'puppeteer', 'chrome')
       const dirs = listDirs(f, base)
       // Prefer win64-* if present, then win32-*
-      const preferred = [
+      const ordered = [
         ...dirs.filter((d) => d.startsWith('win64-')),
         ...dirs.filter((d) => d.startsWith('win32-'))
       ]
-      const candidates = preferred.map((d) => path.join(base, d, 'chrome.exe'))
+      const candidates: string[] = []
+      for (const d of ordered) {
+        // Typical subfolder layout: chrome-win64/chrome.exe or chrome-win32/chrome.exe
+        candidates.push(path.join(base, d, 'chrome-win64', 'chrome.exe'))
+        candidates.push(path.join(base, d, 'chrome-win32', 'chrome.exe'))
+        // Fallback: direct chrome.exe under the version dir
+        candidates.push(path.join(base, d, 'chrome.exe'))
+      }
       return firstExisting(f, candidates)
     }
 
@@ -56,7 +82,16 @@ export function resolveFromPuppeteerCache(deps?: {
     if (!cacheBase) return null
     const base = path.join(cacheBase, 'puppeteer', 'chrome')
     const dirs = listDirs(f, base).filter((d) => d.startsWith('linux-'))
-    const candidates = dirs.map((d) => path.join(base, d, 'chrome'))
+    const candidates: string[] = []
+
+    for (const d of dirs) {
+      // Common subfolder names observed: chrome-linux, chrome-linux64
+      candidates.push(path.join(base, d, 'chrome-linux64', 'chrome'))
+      candidates.push(path.join(base, d, 'chrome-linux', 'chrome'))
+      // Fallback: direct file under the version dir
+      candidates.push(path.join(base, d, 'chrome'))
+    }
+
     return firstExisting(f, candidates)
   } catch {
     return null
