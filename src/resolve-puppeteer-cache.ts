@@ -4,9 +4,13 @@ import path from 'node:path'
 type FsLike = Pick<typeof fs, 'existsSync' | 'readdirSync' | 'statSync'>
 type EnvLike = NodeJS.ProcessEnv
 
-export function resolveFromPuppeteerCache(
-  deps?: { fs?: FsLike; env?: EnvLike; platform?: NodeJS.Platform; homeDir?: string; localAppData?: string },
-): string | null {
+export function resolveFromPuppeteerCache(deps?: {
+  fs?: FsLike
+  env?: EnvLike
+  platform?: NodeJS.Platform
+  homeDir?: string
+  localAppData?: string
+}): string | null {
   const f: FsLike = deps?.fs ?? fs
   const env: EnvLike = deps?.env ?? process.env
   const platform: NodeJS.Platform = deps?.platform ?? process.platform
@@ -18,7 +22,16 @@ export function resolveFromPuppeteerCache(
       const base = path.join(home, 'Library', 'Caches', 'puppeteer', 'chrome')
       const candidates = listDirs(f, base)
         .filter((d) => d.startsWith('mac-') || d.startsWith('mac_arm-'))
-        .map((d) => path.join(base, d, 'Google Chrome for Testing.app', 'Contents', 'MacOS', 'Google Chrome for Testing'))
+        .map((d) =>
+          path.join(
+            base,
+            d,
+            'Google Chrome for Testing.app',
+            'Contents',
+            'MacOS',
+            'Google Chrome for Testing'
+          )
+        )
       return firstExisting(f, candidates)
     }
 
@@ -30,7 +43,7 @@ export function resolveFromPuppeteerCache(
       // Prefer win64-* if present, then win32-*
       const preferred = [
         ...dirs.filter((d) => d.startsWith('win64-')),
-        ...dirs.filter((d) => d.startsWith('win32-')),
+        ...dirs.filter((d) => d.startsWith('win32-'))
       ]
       const candidates = preferred.map((d) => path.join(base, d, 'chrome.exe'))
       return firstExisting(f, candidates)
@@ -53,7 +66,7 @@ export function resolveFromPuppeteerCache(
 function listDirs(f: FsLike, dir: string): string[] {
   try {
     return f
-      .readdirSync(dir, { withFileTypes: true } as any)
+      .readdirSync(dir, {withFileTypes: true} as any)
       .filter((e: any) => {
         if (!e) return false
         const v = (e as any).isDirectory
@@ -73,5 +86,3 @@ function firstExisting(f: FsLike, candidates: string[]): string | null {
   }
   return null
 }
-
-

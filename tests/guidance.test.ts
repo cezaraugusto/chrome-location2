@@ -1,4 +1,4 @@
-import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest'
+import {describe, expect, test, vi, beforeEach, afterEach} from 'vitest'
 
 describe('install guidance and error helper', () => {
   const originalPlatform = process.platform
@@ -10,7 +10,7 @@ describe('install guidance and error helper', () => {
 
   afterEach(() => {
     // restore platform
-    Object.defineProperty(process, 'platform', { value: originalPlatform })
+    Object.defineProperty(process, 'platform', {value: originalPlatform})
     process.env = {...originalEnv}
     vi.restoreAllMocks()
   })
@@ -25,12 +25,12 @@ describe('install guidance and error helper', () => {
 
   test('locateChromeOrExplain throws with guidance when nothing found (darwin)', async () => {
     // mock darwin platform
-    Object.defineProperty(process, 'platform', { value: 'darwin' })
+    Object.defineProperty(process, 'platform', {value: 'darwin'})
     // mock scanner to return null
-    vi.doMock('../src/scan-osx-path', () => ({ default: () => null }))
+    vi.doMock('../src/scan-osx-path', () => ({default: () => null}))
     const mod = await import('../src/index')
-    expect(() => mod.locateChromeOrExplain({ allowFallback: true })).toThrow(/We couldn't find a Chrome\/Chromium browser/)
+    expect(() => mod.locateChromeOrExplain({allowFallback: true})).toThrow(
+      /We couldn't find a Chrome\/Chromium browser/
+    )
   })
 })
-
-

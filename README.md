@@ -11,17 +11,17 @@
 
 <img alt="Chrome" align="right" src="https://cdn.jsdelivr.net/gh/extension-js/media@db5deb23fbfa85530f8146718812972998e13a4d/browser_logos/svg/chrome.svg" width="10.5%" />
 
-* By default checks only `stable`. Optionally can cascade to `beta` / `dev` / `canary`.
-* Supports macOS / Windows / Linux
-* Works both as an ES module or CommonJS
+- By default checks only `stable`. Optionally can cascade to `beta` / `dev` / `canary`.
+- Supports macOS / Windows / Linux
+- Works both as an ES module or CommonJS
 
 New in this version:
 
-* Honors environment overrides: `CHROME_FOR_TESTING_PATH`, `CHROMIUM_BINARY`, `CHROME_BINARY`
-* On macOS, auto-detects Chrome for Testing at `/Applications/Google Chrome for Testing.app/...`
-* Optional helper to throw with a friendly install guide when nothing is found
-* Ignores official Google Chrome builds that no longer support `--load-extension` (Chrome ≥137); prefers Chrome for Testing or Chromium
-* CLI output is colorized (green on success, red on error)
+- Honors environment overrides: `CHROME_FOR_TESTING_PATH`, `CHROMIUM_BINARY`, `CHROME_BINARY`
+- On macOS, auto-detects Chrome for Testing at `/Applications/Google Chrome for Testing.app/...`
+- Optional helper to throw with a friendly install guide when nothing is found
+- Ignores official Google Chrome builds that no longer support `--load-extension` (Chrome ≥137); prefers Chrome for Testing or Chromium
+- CLI output is colorized (green on success, red on error)
 
 ## Installation
 
@@ -166,23 +166,23 @@ Returns the first existing path found (given selected channels), or <code>null</
 **Via Node.js (strict by default):**
 
 ```js
-import chromeLocation from "chrome-location2";
+import chromeLocation from 'chrome-location2'
 
 // Strict (Stable only)
-console.log(chromeLocation());
+console.log(chromeLocation())
 // => "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" or null
 
 // Enable fallback (Stable / Beta / Dev / Canary; includes Chromium on macOS/Windows; Chromium/Chromium-browser on Linux)
-console.log(chromeLocation(true));
+console.log(chromeLocation(true))
 // => first found among Stable/Beta/Dev/Canary (or Chromium) or null
 
 // Throw with a friendly, copy-pasteable guide when not found
-import { locateChromeOrExplain, getInstallGuidance } from "chrome-location2";
+import {locateChromeOrExplain, getInstallGuidance} from 'chrome-location2'
 try {
-  const path = locateChromeOrExplain({ allowFallback: true });
-  console.log(path);
+  const path = locateChromeOrExplain({allowFallback: true})
+  console.log(path)
 } catch (e) {
-  console.error(String(e));
+  console.error(String(e))
   // Or print getInstallGuidance() explicitly
 }
 ```
@@ -190,21 +190,23 @@ try {
 **CommonJS:**
 
 ```js
-const api = require('chrome-location2');
-const locateChrome = api.default || api;
+const api = require('chrome-location2')
+const locateChrome = api.default || api
 
 // Strict (Stable only)
-console.log(locateChrome());
+console.log(locateChrome())
 
 // With fallback enabled
-console.log(locateChrome(true));
+console.log(locateChrome(true))
 
 // Helper that throws with guidance
 try {
-  const p = (api.locateChromeOrExplain || ((o) => locateChrome(o?.allowFallback)) )({ allowFallback: true });
-  console.log(p);
+  const p = (
+    api.locateChromeOrExplain || ((o) => locateChrome(o?.allowFallback))
+  )({allowFallback: true})
+  console.log(p)
 } catch (e) {
-  console.error(String(e));
+  console.error(String(e))
 }
 ```
 
@@ -225,12 +227,14 @@ CHROME_FOR_TESTING_PATH=/custom/path/to/chrome npx chrome-location2
 ```
 
 Exit behavior:
+
 - Prints the resolved path on success
 - Exits with code 1 and prints a guidance message if nothing suitable is found
 
 Notes:
+
 - Output is colorized when printed to a TTY (green success, red error)
- - After you run `npx @puppeteer/browsers install chrome@stable` once, we auto-detect Chrome for Testing from Puppeteer's cache on all platforms. No env vars needed.
+- After you run `npx @puppeteer/browsers install chrome@stable` once, we auto-detect Chrome for Testing from Puppeteer's cache on all platforms. No env vars needed.
 
 ### When nothing is found
 
@@ -272,12 +276,12 @@ If any of these environment variables are set and point to an existing binary, t
 
 ## Related projects
 
-* [brave-location](https://github.com/cezaraugusto/brave-location)
-* [edge-location](https://github.com/cezaraugusto/edge-location)
-* [firefox-location2](https://github.com/cezaraugusto/firefox-location2)
-* [opera-location2](https://github.com/cezaraugusto/opera-location2)
-* [vivaldi-location2](https://github.com/cezaraugusto/vivaldi-location2)
-* [yandex-location2](https://github.com/cezaraugusto/yandex-location2)
+- [brave-location](https://github.com/cezaraugusto/brave-location)
+- [edge-location](https://github.com/cezaraugusto/edge-location)
+- [firefox-location2](https://github.com/cezaraugusto/firefox-location2)
+- [opera-location2](https://github.com/cezaraugusto/opera-location2)
+- [vivaldi-location2](https://github.com/cezaraugusto/vivaldi-location2)
+- [yandex-location2](https://github.com/cezaraugusto/yandex-location2)
 
 ## License
 
