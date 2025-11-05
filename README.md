@@ -15,6 +15,23 @@
 * Supports macOS / Windows / Linux
 * Works both as an ES module or CommonJS
 
+New in this version:
+
+* Honors environment overrides: `CHROME_FOR_TESTING_PATH`, `CHROMIUM_BINARY`, `CHROME_BINARY`
+* On macOS, auto-detects Chrome for Testing at `/Applications/Google Chrome for Testing.app/...`
+* Optional helper to throw with a friendly install guide when nothing is found
+* Ignores official Google Chrome builds that no longer support `--load-extension` (Chrome ≥137); prefers Chrome for Testing or Chromium
+* CLI output is colorized (green on success, red on error)
+
+## Installation
+
+```bash
+# pick one
+pnpm add chrome-location2
+npm i chrome-location2
+yarn add chrome-location2
+```
+
 ## Support table
 
 This table lists the default locations where Chrome is typically installed for each supported platform and channel. By default, only the Stable channel is checked. When fallback is enabled, the package checks these paths (in order) and returns the first one found.
@@ -158,6 +175,37 @@ console.log(chromeLocation());
 // Enable fallback (Stable / Beta / Dev / Canary; includes Chromium on macOS/Windows; Chromium/Chromium-browser on Linux)
 console.log(chromeLocation(true));
 // => first found among Stable/Beta/Dev/Canary (or Chromium) or null
+
+// Throw with a friendly, copy-pasteable guide when not found
+import { locateChromeOrExplain, getInstallGuidance } from "chrome-location2";
+try {
+  const path = locateChromeOrExplain({ allowFallback: true });
+  console.log(path);
+} catch (e) {
+  console.error(String(e));
+  // Or print getInstallGuidance() explicitly
+}
+```
+
+**CommonJS:**
+
+```js
+const api = require('chrome-location2');
+const locateChrome = api.default || api;
+
+// Strict (Stable only)
+console.log(locateChrome());
+
+// With fallback enabled
+console.log(locateChrome(true));
+
+// Helper that throws with guidance
+try {
+  const p = (api.locateChromeOrExplain || ((o) => locateChrome(o?.allowFallback)) )({ allowFallback: true });
+  console.log(p);
+} catch (e) {
+  console.error(String(e));
+}
 ```
 
 **Via CLI:**
@@ -168,7 +216,59 @@ npx chrome-location2
 
 npx chrome-location2 --fallback
 # Enable cascade (Stable / Beta / Dev / Canary)
+
+# Short flag
+npx chrome-location2 -f
+
+# Respect environment overrides
+CHROME_FOR_TESTING_PATH=/custom/path/to/chrome npx chrome-location2
 ```
+
+Exit behavior:
+- Prints the resolved path on success
+- Exits with code 1 and prints a guidance message if nothing suitable is found
+
+Notes:
+- Output is colorized when printed to a TTY (green success, red error)
+ - After you run `npx @puppeteer/browsers install chrome@stable` once, we auto-detect Chrome for Testing from Puppeteer's cache on all platforms. No env vars needed.
+
+### When nothing is found
+
+The helper returns actionable guidance (Vercel-like tone):
+
+```
+We couldn't find a Chrome/Chromium browser on this machine.
+
+Here's the fastest way to get set up:
+
+1) Install Chrome for Testing (recommended)
+   npx @puppeteer/browsers install chrome@stable
+
+Then re-run your command , we'll detect it automatically.
+
+Alternatively, install Chromium via your system's package manager and re-run.
+```
+
+## API
+
+- `default export locateChrome(allowFallback?: boolean): string | null`
+  - Returns the first existing path among the selected channels or `null`.
+  - When `allowFallback` is `true`, checks Stable → Beta → Dev → Canary. May also consider Chromium depending on platform.
+
+- `locateChromeOrExplain(options?: boolean | { allowFallback?: boolean }): string`
+  - Returns a path if found, otherwise throws an `Error` with a friendly installation guide.
+  - Rejects official Google Chrome builds that removed `--load-extension` support (Chrome ≥137); prefers Chrome for Testing or Chromium.
+
+- `getInstallGuidance(): string`
+  - Returns the same guidance text used by `locateChromeOrExplain()`.
+
+### Environment overrides
+
+If any of these environment variables are set and point to an existing binary, they take precedence:
+
+- `CHROME_FOR_TESTING_PATH`
+- `CHROMIUM_BINARY`
+- `CHROME_BINARY`
 
 ## Related projects
 

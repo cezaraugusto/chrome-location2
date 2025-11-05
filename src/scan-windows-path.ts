@@ -7,6 +7,14 @@ type Deps = { fs?: FsLike; env?: NodeJS.ProcessEnv };
 export default function scanWindowsPath(allowFallback = false, deps?: Deps) {
   const f: FsLike = deps?.fs ?? fs;
   const env = deps?.env ?? process.env;
+
+  // 0) Environment overrides (Chrome for Testing / Chromium / Chrome)
+  const envPath = env.CHROME_FOR_TESTING_PATH
+    || env.CHROMIUM_BINARY
+    || env.CHROME_BINARY;
+
+  if (envPath && f.existsSync(envPath)) return envPath;
+
   const prefixes = [
     env.LOCALAPPDATA,
     env.PROGRAMFILES,
@@ -14,6 +22,8 @@ export default function scanWindowsPath(allowFallback = false, deps?: Deps) {
   ].filter(Boolean);
 
   const suffixesAll = [
+    // Prefer Chrome for Testing if installed in a conventional location
+    '\\Google\\Chrome for Testing\\Application\\chrome.exe',
     '\\Google\\Chrome\\Application\\chrome.exe',
     '\\Google\\Chrome Beta\\Application\\chrome.exe',
     '\\Google\\Chrome Dev\\Application\\chrome.exe',

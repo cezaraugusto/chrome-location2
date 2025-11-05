@@ -22,6 +22,19 @@ describe('chrome-location2 fallbacks', () => {
     ).toBe(true);
   });
 
+  test('macOS: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+    const scanOsxPath = (await import('../src/scan-osx-path')).default as any;
+    const envPath = '/Applications/ChromeForTesting.app/Contents/MacOS/Chrome'
+    const oldEnv = process.env.CHROME_FOR_TESTING_PATH
+    process.env.CHROME_FOR_TESTING_PATH = envPath
+    const result = scanOsxPath(false, {
+      fs: { existsSync: (p: string) => p === envPath },
+      userhome: () => '/Users/test/Applications',
+    });
+    expect(result).toBe(envPath)
+    process.env.CHROME_FOR_TESTING_PATH = oldEnv
+  });
+
   test('Windows: strict null, fallback finds Beta', async () => {
     const scanWindowsPath = (await import('../src/scan-windows-path'))
       .default as any;
@@ -43,6 +56,19 @@ describe('chrome-location2 fallbacks', () => {
     });
     expect(strict).toBeNull();
     expect(typeof result === 'string' && /Chrome Beta/.test(result)).toBe(true);
+  });
+
+  test('Windows: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+    const scanWindowsPath = (await import('../src/scan-windows-path')).default as any;
+    const envPath = 'C\\ChromeForTesting\\chrome.exe'
+    const result = scanWindowsPath(false, {
+      fs: { existsSync: (p: string) => p === envPath },
+      env: {
+        CHROME_FOR_TESTING_PATH: envPath,
+        LOCALAPPDATA: 'C\\Local',
+      } as any,
+    });
+    expect(result).toBe(envPath)
   });
 
   test('Linux/other: strict only stable; fallback tries beta/unstable and chromium', async () => {
@@ -73,6 +99,20 @@ describe('chrome-location2 fallbacks', () => {
     );
     expect(calls[0]).toBe('google-chrome');
   });
+
+  test('Linux/other: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+    const scanUnknown = (await import('../src/scan-unknown-platform-path')).default as any;
+    const envPath = '/opt/cft/chrome'
+    const oldEnv = process.env.CHROME_FOR_TESTING_PATH
+    process.env.CHROME_FOR_TESTING_PATH = envPath
+    const result = scanUnknown(false, {
+      which: {
+        sync: () => { throw new Error('nf') },
+      },
+    })
+    expect(result).toBe(envPath)
+    process.env.CHROME_FOR_TESTING_PATH = oldEnv
+  })
 
   test('macOS: falls back to Chromium when Chrome channels missing (only with fallback)', async () => {
     const scanOsxPath = (await import('../src/scan-osx-path')).default as any;

@@ -8,6 +8,19 @@ type Deps = { fs?: FsLike; userhome?: (path: string) => string };
 export default function scanOsxPath(allowFallback = false, deps?: Deps) {
   const f: FsLike = deps?.fs ?? fs;
   const uh = deps?.userhome ?? userhome;
+
+  // 0) Environment overrides (Chrome for Testing / Chromium / Chrome)
+  const envPath = process.env.CHROME_FOR_TESTING_PATH
+    || process.env.CHROMIUM_BINARY
+    || process.env.CHROME_BINARY;
+
+  if (envPath && f.existsSync(envPath)) return envPath;
+
+  // 1) Chrome for Testing (well-known macOS App name)
+  const cft = '/Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing';
+
+  if (f.existsSync(cft)) return cft;
+
   const chromeChannels = [
     { app: 'Google Chrome.app', exec: 'Google Chrome' },
     { app: 'Google Chrome Beta.app', exec: 'Google Chrome Beta' },

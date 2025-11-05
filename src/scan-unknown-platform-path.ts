@@ -8,8 +8,31 @@ export default function scanUnknownPlatform(
   deps?: Deps,
 ) {
   const w = deps?.which ?? which;
+
+  // 0) Environment overrides (Chrome for Testing / Chromium / Chrome)
+  const rawEnv = [
+    process.env.CHROME_FOR_TESTING_PATH,
+    process.env.CHROMIUM_BINARY,
+    process.env.CHROME_BINARY,
+  ]
+  const envPath = rawEnv.find((v) => {
+    if (!v) return false
+    const s = String(v).trim().toLowerCase()
+    return s.length > 0 && s !== 'undefined' && s !== 'null'
+  })
+  if (envPath) {
+    try {
+      // If it's on PATH as a command, resolve; otherwise use as a file path
+      const maybeCmd = w.sync(envPath);
+      if (maybeCmd) return maybeCmd;
+    } catch (_) {}
+    return envPath;
+  }
   const stable = ['google-chrome'];
   const fallbacks = [
+    // Prefer CfT commands if present
+    'google-chrome-for-testing',
+    'chrome-for-testing',
     'google-chrome-beta',
     'google-chrome-unstable',
     'chromium-browser',
