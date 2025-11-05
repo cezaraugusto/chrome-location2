@@ -26,7 +26,7 @@ New in this version:
 ## Installation
 
 ```bash
-# pick one
+# Pick one
 pnpm add chrome-location2
 npm i chrome-location2
 yarn add chrome-location2
