@@ -20,8 +20,8 @@ New in this version:
 - Honors environment overrides: `CHROME_FOR_TESTING_PATH`, `CHROMIUM_BINARY`, `CHROME_BINARY`
 - On macOS, auto-detects Chrome for Testing at `/Applications/Google Chrome for Testing.app/...`
 - Optional helper to throw with a friendly install guide when nothing is found
-- Ignores official Google Chrome builds that no longer support `--load-extension` (Chrome ≥137); prefers Chrome for Testing or Chromium
 - CLI output is colorized (green on success, red on error)
+- New: Cross-platform version API that does not execute the browser by default
 
 ## Installation
 
@@ -176,11 +176,19 @@ console.log(chromeLocation())
 console.log(chromeLocation(true))
 // => first found among Stable/Beta/Dev/Canary (or Chromium) or null
 
-// Throw with a friendly, copy-pasteable guide when not found
-import {locateChromeOrExplain, getInstallGuidance} from 'chrome-location2'
+// Throw with a friendly, copy-pasteable guide when not found (path-only resolution; never executes the browser)
+import {locateChromeOrExplain, getInstallGuidance, getChromeVersion} from 'chrome-location2'
 try {
   const path = locateChromeOrExplain({allowFallback: true})
   console.log(path)
+
+  // Cross-platform version (no exec by default)
+  const v = getChromeVersion(path)
+  console.log(v) // e.g. "120.0.6099.109" or null
+
+  // Opt-in: allow executing the binary to fetch version on platforms without metadata (e.g. Linux)
+  const v2 = getChromeVersion(path, {allowExec: true})
+  console.log(v2)
 } catch (e) {
   console.error(String(e))
   // Or print getInstallGuidance() explicitly
@@ -224,12 +232,19 @@ npx chrome-location2 -f
 
 # Respect environment overrides
 CHROME_FOR_TESTING_PATH=/custom/path/to/chrome npx chrome-location2
+
+# Print Chrome version instead of path (no exec by default)
+npx chrome-location2 --chrome-version
+
+# Allow executing the binary if metadata is unavailable (mainly Linux)
+npx chrome-location2 --chrome-version --allow-exec
 ```
 
 Exit behavior:
 
 - Prints the resolved path on success
 - Exits with code 1 and prints a guidance message if nothing suitable is found
+- When `--chrome-version` is used: prints version or exits with code 2 if not determinable without exec and `--allow-exec` was not provided
 
 Notes:
 
@@ -261,7 +276,13 @@ Alternatively, install Chromium via your system's package manager and re-run.
 
 - `locateChromeOrExplain(options?: boolean | { allowFallback?: boolean }): string`
   - Returns a path if found, otherwise throws an `Error` with a friendly installation guide.
-  - Rejects official Google Chrome builds that removed `--load-extension` support (Chrome ≥137); prefers Chrome for Testing or Chromium.
+  - Path resolution never executes the browser.
+
+- `getChromeVersion(bin: string, opts?: { allowExec?: boolean }): string | null`
+  - Cross-platform version resolver that does not execute the browser by default.
+  - Windows: reads PE file metadata via PowerShell (no GUI spawn).
+  - macOS: reads `Info.plist` (no GUI spawn).
+  - Linux/other: attempts to infer from Puppeteer cache path; if not available, returns `null` unless `allowExec` is `true`.
 
 - `getInstallGuidance(): string`
   - Returns the same guidance text used by `locateChromeOrExplain()`.

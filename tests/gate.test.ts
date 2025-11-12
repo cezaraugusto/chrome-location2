@@ -1,29 +1,31 @@
-import {describe, expect, test, vi, beforeEach, afterEach} from 'vitest'
+import { describe, expect, test, vi, beforeEach, afterEach } from 'vitest';
 
-describe('version gate for unsupported official Chrome', () => {
-  const originalPlatform = process.platform
+describe('no version probing during path resolution', () => {
+  const originalPlatform = process.platform;
+  const execMock: any = vi.fn();
 
   beforeEach(() => {
-    vi.resetModules()
-  })
+    vi.resetModules();
+    execMock.mockReset();
+    vi.doMock('child_process', () => ({
+      execFileSync: (...args: any[]) => execMock(...args),
+    }));
+  });
 
   afterEach(() => {
-    Object.defineProperty(process, 'platform', {value: originalPlatform})
-    vi.restoreAllMocks()
-  })
+    Object.defineProperty(process, 'platform', { value: originalPlatform });
+    vi.restoreAllMocks();
+  });
 
-  test('locateChromeOrExplain rejects Google Chrome >=137 and throws guidance', async () => {
-    Object.defineProperty(process, 'platform', {value: 'linux'})
+  test('locateChromeOrExplain does not spawn the browser binary', async () => {
+    Object.defineProperty(process, 'platform', { value: 'linux' });
     vi.doMock('../src/scan-unknown-platform-path', () => ({
-      default: () => '/usr/bin/google-chrome'
-    }))
-    vi.doMock('child_process', () => ({
-      execFileSync: () => 'Google Chrome 138.0.0.0'
-    }))
+      default: () => '/usr/bin/google-chrome',
+    }));
 
-    const {locateChromeOrExplain} = await import('../src/index')
-    expect(() => locateChromeOrExplain({allowFallback: true})).toThrow(
-      /Install Chrome for Testing|CHROME_FOR_TESTING_PATH/
-    )
-  })
-})
+    const { locateChromeOrExplain } = await import('../src/index');
+    const out = locateChromeOrExplain({ allowFallback: true });
+    expect(out).toBe('/usr/bin/google-chrome');
+    expect(execMock).not.toHaveBeenCalled();
+  });
+});
