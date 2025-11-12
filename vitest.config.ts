@@ -1,18 +1,18 @@
-import {defineConfig} from 'vitest/config'
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   // Configure Vitest (https://vitest.dev/config/)
   test: {
-    // Avoid Node.js 23 + tinypool recursion by using process forks
-    pool: 'forks',
+    // Use worker threads in a single-threaded mode to avoid sandbox kill/EPERM and Node 23 tinypool issues
+    pool: 'threads',
     poolOptions: {
-      forks: {
-        singleFork: true,
-        isolate: false
-      }
+      threads: {
+        singleThread: true,
+      },
     },
+    isolate: false,
     fileParallelism: false,
     maxWorkers: 1,
-    minWorkers: 1
-  }
-})
+    minWorkers: 1,
+  },
+});
