@@ -4,7 +4,6 @@ import locateChrome, {
   getInstallGuidance,
   getChromeVersion,
 } from './dist/index.js';
-import pintor from 'pintor';
 
 const argv = process.argv.slice(2);
 const allowFallback = argv.includes('--fallback') || argv.includes('-f');
@@ -30,12 +29,12 @@ try {
       console.log('');
       process.exit(2);
     }
-    console.log(pintor.green(String(v)));
+    console.log(String(v));
     process.exit(0);
   }
 
-  console.log(pintor.green(String(chromePath)));
+  console.log(String(chromePath));
 } catch (e) {
-  console.error(pintor.red(String(e)));
+  console.error(String(e));
   process.exit(1);
 }
