@@ -22,26 +22,25 @@
     }
   },
   "bin": {
-    "chrome-location2": "bin.js"
+    "chrome-location2": "bin.cjs"
   },
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "rslib build",
     "check": "pnpm dlx @biomejs/biome@1.9.4 check --write",
     "dev": "rslib build --watch",
     "format": "pnpm dlx @biomejs/biome@1.9.4 format --write",
+    "pretest": "npm run build",
     "test": "vitest run",
     "prepublishOnly": "npm run build",
     "publish:provenance": "np patch --no-tests --any-branch --yolo --message 'release: %s' --provenance"
   },
   "engines": {
-    "node": ">=18 <23"
+    "node": ">=16"
   },
-  "engineStrict": true,
+  "engineStrict": false,
   "publishConfig": {
     "provenance": true
   },
