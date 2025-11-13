@@ -6,7 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveFromPuppeteerCache } from './resolve-puppeteer-cache';
 
-export type FsLike = { existsSync: (p: string) => boolean };
+export type FsLike = Pick<typeof fs, 'existsSync' | 'readdirSync' | 'statSync'>;
 export type WhichLike = { sync: (cmd: string) => string };
 export type Deps = {
   fs?: FsLike;
