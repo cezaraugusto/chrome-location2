@@ -6,31 +6,55 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveFromPuppeteerCache } from './resolve-puppeteer-cache';
 
-export default function locateChrome(allowFallback = false) {
+export type FsLike = { existsSync: (p: string) => boolean };
+export type WhichLike = { sync: (cmd: string) => string };
+export type Deps = {
+  fs?: FsLike;
+  which?: WhichLike;
+  env?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+  // Pass-through for scanOsxPath (optional)
+  userhome?: (p: string) => string;
+};
+
+export default function locateChrome(
+  allowFallbackOrDeps?: boolean | Deps,
+  depsMaybe?: Deps,
+) {
+  const isBoolean = typeof allowFallbackOrDeps === 'boolean';
+  const allowFallback = isBoolean ? (allowFallbackOrDeps as boolean) : false;
+  const deps: Deps | undefined = isBoolean
+    ? depsMaybe
+    : (allowFallbackOrDeps as Deps | undefined);
+
+  const f: FsLike = deps?.fs ?? fs;
+  const e = deps?.env ?? process.env;
+  const platform = deps?.platform ?? process.platform;
+
   let found: string | null = null;
-  switch (process.platform) {
+  switch (platform) {
     case 'darwin':
-      found = scanOsxPath(allowFallback);
+      found = scanOsxPath(allowFallback, { fs: f, userhome: deps?.userhome });
       break;
     case 'win32':
-      found = scanWindowsPath(allowFallback);
+      found = scanWindowsPath(allowFallback, { fs: f, env: e });
       break;
     default:
-      found = scanUnknownPlatformPath(allowFallback);
+      found = scanUnknownPlatformPath(allowFallback, { which: deps?.which });
       break;
   }
 
   // Try Puppeteer cache
-  if (!found) found = resolveFromPuppeteerCache();
+  if (!found) found = resolveFromPuppeteerCache({ fs: f, env: e, platform });
 
   // Last resort: short, silent CLI probe of @puppeteer/browsers cache path
   // Skip during tests to avoid timeouts and external process spawning
   const isTestEnv =
-    process.env.NODE_ENV === 'test' ||
-    typeof process.env.VITEST !== 'undefined' ||
-    typeof process.env.JEST_WORKER_ID !== 'undefined';
+    e?.NODE_ENV === 'test' ||
+    typeof (e as any)?.VITEST !== 'undefined' ||
+    typeof (e as any)?.JEST_WORKER_ID !== 'undefined';
   // Allow CLI probing in tests for non-darwin platforms (unit test covers Linux CLI fallback)
-  const skipCliProbe = isTestEnv && process.platform === 'darwin';
+  const skipCliProbe = isTestEnv && platform === 'darwin';
   if (!found && !skipCliProbe) found = resolveFromPuppeteerBrowsersCLI();
 
   return found;
