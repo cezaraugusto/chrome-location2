@@ -1,5 +1,7 @@
 import { describe, expect, test, afterEach, vi } from 'vitest';
 
+/* biome-ignore-all lint/suspicious/noExplicitAny: test harness uses dynamic imports with untyped injected deps */
+
 describe('chrome-location2 fallbacks', () => {
   afterEach(() => {
     vi.restoreAllMocks();
