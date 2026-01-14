@@ -302,7 +302,7 @@ If any of these environment variables are set and point to an existing binary, t
 - [firefox-location2](https://github.com/cezaraugusto/firefox-location2)
 - [opera-location2](https://github.com/cezaraugusto/opera-location2)
 - [vivaldi-location2](https://github.com/cezaraugusto/vivaldi-location2)
-- [yandex-location2](https://github.com/cezaraugusto/yandex-location2)
+- [yandex-location](https://github.com/cezaraugusto/yandex-location)
 
 ## License
 

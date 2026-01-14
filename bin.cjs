@@ -67,6 +67,6 @@ try {
 
   console.log(String(chromePath));
 } catch (e) {
-  console.error(String(e && e.message ? e.message : e));
+  console.error(String(e?.message ? e.message : e));
   process.exit(1);
 }
