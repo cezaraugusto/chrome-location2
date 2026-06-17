@@ -1,13 +1,14 @@
-import scanOsxPath from './scan-osx-path';
-import scanWindowsPath from './scan-windows-path';
-import scanUnknownPlatformPath from './scan-unknown-platform-path';
-import { execFileSync } from 'child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-import { resolveFromPuppeteerCache } from './resolve-puppeteer-cache';
+import {execFileSync} from 'child_process'
+import fs from 'node:fs'
+import path from 'node:path'
 
-export type FsLike = Pick<typeof fs, 'existsSync' | 'readdirSync' | 'statSync'>;
-export type WhichLike = { sync: (cmd: string) => string };
+import scanOsxPath from './scan-osx-path'
+import scanWindowsPath from './scan-windows-path'
+import scanUnknownPlatformPath from './scan-unknown-platform-path'
+import {resolveFromPuppeteerCache} from './resolve-puppeteer-cache'
+
+export type FsLike = Pick<typeof fs, 'existsSync' | 'readdirSync' | 'statSync'>
+export type WhichLike = {sync: (cmd: string) => string}
 export type Deps = {
   fs?: FsLike;
   which?: WhichLike;
@@ -15,52 +16,55 @@ export type Deps = {
   platform?: NodeJS.Platform;
   // Pass-through for scanOsxPath (optional)
   userhome?: (p: string) => string;
-};
+}
 
-export default function locateChrome(
+export default function locateChrome (
   allowFallbackOrDeps?: boolean | Deps,
-  depsMaybe?: Deps,
+  depsMaybe?: Deps
 ) {
-  const isBoolean = typeof allowFallbackOrDeps === 'boolean';
-  const allowFallback = isBoolean ? (allowFallbackOrDeps as boolean) : false;
+  const isBoolean = typeof allowFallbackOrDeps === 'boolean'
+  const allowFallback = isBoolean ? (allowFallbackOrDeps as boolean) : false
   const deps: Deps | undefined = isBoolean
     ? depsMaybe
-    : (allowFallbackOrDeps as Deps | undefined);
+    : (allowFallbackOrDeps as Deps | undefined)
 
-  const f: FsLike = deps?.fs ?? fs;
-  const e = deps?.env ?? process.env;
-  const platform = deps?.platform ?? process.platform;
+  const f: FsLike = deps?.fs ?? fs
+  const e = deps?.env ?? process.env
+  const platform = deps?.platform ?? process.platform
 
-  let found: string | null = null;
+  let found: string | null = null
+
   switch (platform) {
     case 'darwin':
-      found = scanOsxPath(allowFallback, { fs: f, userhome: deps?.userhome });
-      break;
+      found = scanOsxPath(allowFallback, {fs: f, userhome: deps?.userhome})
+      break
     case 'win32':
-      found = scanWindowsPath(allowFallback, { fs: f, env: e });
-      break;
+      found = scanWindowsPath(allowFallback, {fs: f, env: e})
+      break
     default:
-      found = scanUnknownPlatformPath(allowFallback, { which: deps?.which });
-      break;
+      found = scanUnknownPlatformPath(allowFallback, {which: deps?.which})
+      break
   }
 
   // Try Puppeteer cache
-  if (!found) found = resolveFromPuppeteerCache({ fs: f, env: e, platform });
+  if (!found) found = resolveFromPuppeteerCache({fs: f, env: e, platform})
 
   // Last resort: short, silent CLI probe of @puppeteer/browsers cache path
   // Skip during tests to avoid timeouts and external process spawning
   const isTestEnv =
     e?.NODE_ENV === 'test' ||
     typeof (e as any)?.VITEST !== 'undefined' ||
-    typeof (e as any)?.JEST_WORKER_ID !== 'undefined';
-  // Allow CLI probing in tests for non-darwin platforms (unit test covers Linux CLI fallback)
-  const skipCliProbe = isTestEnv && platform === 'darwin';
-  if (!found && !skipCliProbe) found = resolveFromPuppeteerBrowsersCLI();
+    typeof (e as any)?.JEST_WORKER_ID !== 'undefined'
 
-  return found;
+  // Allow CLI probing in tests for non-darwin platforms (unit test covers Linux CLI fallback)
+  const skipCliProbe = isTestEnv && platform === 'darwin'
+
+  if (!found && !skipCliProbe) found = resolveFromPuppeteerBrowsersCLI()
+
+  return found
 }
 
-export function getInstallGuidance(): string {
+export function getInstallGuidance (): string {
   return [
     "We couldn't find a Chrome/Chromium browser on this machine.",
     '',
@@ -71,18 +75,21 @@ export function getInstallGuidance(): string {
     '',
     "Then re-run your command , we'll detect it automatically.",
     '',
-    "Alternatively, install Chromium via your system's package manager and re-run.",
-  ].join('\n');
+    "Alternatively, install Chromium via your system's package manager and re-run."
+  ].join('\n')
 }
 
-export function locateChromeOrExplain(
-  options?: boolean | { allowFallback?: boolean },
+export function locateChromeOrExplain (
+  options?: boolean | {allowFallback?: boolean}
 ): string {
   const allowFallback =
-    typeof options === 'boolean' ? options : Boolean(options?.allowFallback);
-  const found = locateChrome(allowFallback) || locateChrome(true);
-  if (typeof found === 'string' && found) return found;
-  throw new Error(getInstallGuidance());
+    typeof options === 'boolean' ? options : Boolean(options?.allowFallback)
+
+  const found = locateChrome(allowFallback) || locateChrome(true)
+
+  if (typeof found === 'string' && found) return found
+
+  throw new Error(getInstallGuidance())
 }
 
 /**
@@ -91,125 +98,140 @@ export function locateChromeOrExplain(
  * - Tries to read version from Puppeteer cache paths or platform metadata.
  * - If opts.allowExec is true, may invoke the binary as a last resort (Linux/other).
  */
-export function getChromeVersion(
+export function getChromeVersion (
   bin: string,
-  opts?: { allowExec?: boolean },
+  opts?: {allowExec?: boolean}
 ): string | null {
   // 1) Try to extract from Puppeteer cache layout (works on all platforms)
-  const fromPptr = extractVersionFromPuppeteerPath(bin);
-  if (fromPptr) return fromPptr;
+  const fromPptr = extractVersionFromPuppeteerPath(bin)
+
+  if (fromPptr) return fromPptr
 
   // 2) Platform-specific metadata (no GUI spawn)
   if (process.platform === 'win32') {
     try {
-      const psPath = bin.replace(/'/g, "''");
+      const psPath = bin.replace(/'/g, "''")
       const pv = execFileSync(
         'powershell.exe',
         [
           '-NoProfile',
           '-Command',
-          `(Get-Item -LiteralPath '${psPath}').VersionInfo.ProductVersion`,
+          `(Get-Item -LiteralPath '${psPath}').VersionInfo.ProductVersion`
         ],
-        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-      ).trim();
-      return normalizeVersion(pv);
+        {encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore']}
+      ).trim()
+
+      return normalizeVersion(pv)
     } catch {}
+
     // Optional last resort if explicitly allowed
     if (opts?.allowExec) {
       const v =
-        tryExec(bin, ['--product-version']) || tryExec(bin, ['--version']);
-      return normalizeVersion(v);
+        tryExec(bin, ['--product-version']) || tryExec(bin, ['--version'])
+
+      return normalizeVersion(v)
     }
-    return null;
+    return null
   }
 
   if (process.platform === 'darwin') {
     try {
       // From .../Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing
       // Walk to .../Contents/Info.plist
-      const contentsDir = path.dirname(path.dirname(bin));
-      const infoPlist = path.join(contentsDir, 'Info.plist');
+      const contentsDir = path.dirname(path.dirname(bin))
+      const infoPlist = path.join(contentsDir, 'Info.plist')
+
       if (fs.existsSync(infoPlist)) {
-        const xml = fs.readFileSync(infoPlist, 'utf8');
+        const xml = fs.readFileSync(infoPlist, 'utf8')
         const v =
           parsePlistString(xml, 'CFBundleShortVersionString') ||
           parsePlistString(xml, 'CFBundleVersion') ||
-          '';
-        return normalizeVersion(v);
+          ''
+
+        return normalizeVersion(v)
       }
     } catch {}
+
     if (opts?.allowExec) {
-      const v = tryExec(bin, ['--version']);
-      return normalizeVersion(v);
+      const v = tryExec(bin, ['--version'])
+
+      return normalizeVersion(v)
     }
-    return null;
+    return null
   }
 
-  // linux and others: prefer Puppeteer path; metadata usually unavailable
+  // Linux and others: prefer Puppeteer path; metadata usually unavailable
   if (opts?.allowExec) {
-    const v = tryExec(bin, ['--version']);
-    return normalizeVersion(v);
+    const v = tryExec(bin, ['--version'])
+
+    return normalizeVersion(v)
   }
-  return null;
+  return null
 }
 
-function extractVersionFromPuppeteerPath(p: string): string | null {
+function extractVersionFromPuppeteerPath (p: string): string | null {
   // .../puppeteer/chrome/<osTag>-<version>/(chrome-win64|chrome-linux*)/chrome(.exe)
   const m = p.match(
-    /[\\/]puppeteer[\\/]chrome[\\/](?:mac(?:_arm)?|win(?:32|64)|linux)-(\d+(?:\.\d+)*)(?:[\\/]|$)/i,
-  );
-  return m ? normalizeVersion(m[1]) : null;
+    /[\\/]puppeteer[\\/]chrome[\\/](?:mac(?:_arm)?|win(?:32|64)|linux)-(\d+(?:\.\d+)*)(?:[\\/]|$)/i
+  )
+
+  return m ? normalizeVersion(m[1]) : null
 }
 
-function normalizeVersion(s: string | null | undefined): string | null {
-  if (!s) return null;
-  const m = String(s).match(/(\d+(?:\.\d+){1,3})/);
-  return m ? m[1] : null;
+function normalizeVersion (s: string | null | undefined): string | null {
+  if (!s) return null
+
+  const m = String(s).match(/(\d+(?:\.\d+){1,3})/)
+
+  return m ? m[1] : null
 }
 
-function parsePlistString(xml: string, key: string): string | null {
-  const re = new RegExp(`<key>${key}<\\/key>\\s*<string>([^<]+)<\\/string>`);
-  const m = xml.match(re);
-  return m ? m[1].trim() : null;
+function parsePlistString (xml: string, key: string): string | null {
+  const re = new RegExp(`<key>${key}<\\/key>\\s*<string>([^<]+)<\\/string>`)
+  const m = xml.match(re)
+
+  return m ? m[1].trim() : null
 }
 
-function tryExec(bin: string, args: string[]): string | null {
+function tryExec (bin: string, args: string[]): string | null {
   try {
     return execFileSync(bin, args, {
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim()
   } catch {
-    return null;
+    return null
   }
 }
 
-function resolveFromPuppeteerBrowsersCLI(): string | null {
-  const attempts: Array<{ cmd: string; args: string[] }> = [
+function resolveFromPuppeteerBrowsersCLI (): string | null {
+  const attempts: Array<{cmd: string; args: string[]}> = [
     {
       cmd: 'npx',
-      args: ['-y', '@puppeteer/browsers', 'path', 'chrome@stable'],
+      args: ['-y', '@puppeteer/browsers', 'path', 'chrome@stable']
     },
     {
       cmd: 'pnpm',
-      args: ['dlx', '@puppeteer/browsers', 'path', 'chrome@stable'],
+      args: ['dlx', '@puppeteer/browsers', 'path', 'chrome@stable']
     },
     {
       cmd: 'yarn',
-      args: ['dlx', '@puppeteer/browsers', 'path', 'chrome@stable'],
+      args: ['dlx', '@puppeteer/browsers', 'path', 'chrome@stable']
     },
-    { cmd: 'bunx', args: ['@puppeteer/browsers', 'path', 'chrome@stable'] },
-  ];
+    {cmd: 'bunx', args: ['@puppeteer/browsers', 'path', 'chrome@stable']}
+  ]
 
-  for (const { cmd, args } of attempts) {
+  for (const {cmd, args} of attempts) {
     try {
       const out = execFileSync(cmd, args, {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'ignore'],
-        timeout: 2000,
-      }).trim();
-      if (out && fs.existsSync(out)) return out;
+        timeout: 2000
+      }).trim()
+
+      if (out && fs.existsSync(out)) return out
     } catch {}
   }
-  return null;
+
+  return null
 }
