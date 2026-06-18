@@ -15,7 +15,7 @@ describe('install guidance and error helper', () => {
     vi.restoreAllMocks()
   })
 
-  test('getInstallGuidance has CfT instructions and no CHROMIUM_BINARY', async () => {
+  it('getInstallGuidance has CfT instructions and no CHROMIUM_BINARY', async () => {
     const mod = await import('../src/index')
     const msg = mod.getInstallGuidance()
 
@@ -24,7 +24,7 @@ describe('install guidance and error helper', () => {
     expect(msg).not.toMatch(/CHROMIUM_BINARY/)
   })
 
-  test('locateChromeOrExplain throws with guidance when nothing found (darwin)', async () => {
+  it('locateChromeOrExplain throws with guidance when nothing found (darwin)', async () => {
     // Mock darwin platform
     Object.defineProperty(process, 'platform', {value: 'darwin'})
     // Mock scanner to return null

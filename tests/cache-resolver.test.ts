@@ -20,7 +20,7 @@ const makeFs = (entries: Record<string, 'file' | 'dir'>) => {
 }
 
 describe('resolveFromPuppeteerCache', () => {
-  test('macOS resolves CfT binary', () => {
+  it('macOS resolves CfT binary', () => {
     const home = '/Users/alice'
     const base = `${home}/Library/Caches/puppeteer/chrome/mac-123`
     const bin = `${base}/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`
@@ -39,7 +39,7 @@ describe('resolveFromPuppeteerCache', () => {
     expect(out).toBe(bin)
   })
 
-  test('Linux resolves CfT binary', () => {
+  it('Linux resolves CfT binary', () => {
     const home = '/home/alice'
     const base = `${home}/.cache/puppeteer/chrome/linux-123`
     const bin = `${base}/chrome`
@@ -58,7 +58,7 @@ describe('resolveFromPuppeteerCache', () => {
     expect(out).toBe(bin)
   })
 
-  test('Windows resolves CfT binary (win64 preferred)', () => {
+  it('Windows resolves CfT binary (win64 preferred)', () => {
     const lad = 'C:/Users/Alice/AppData/Local'
     const base = `${lad}/puppeteer/chrome`
     const bin64 = `${base}/win64-123/chrome.exe`
