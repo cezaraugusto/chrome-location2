@@ -14,19 +14,20 @@ export function resolveFromPuppeteerCache (deps?: {
   const f: FsLike = deps?.fs ?? fs
   const env: EnvLike = deps?.env ?? process.env
   const platform: NodeJS.Platform = deps?.platform ?? process.platform
+  const p = platform === 'win32' ? path.win32 : path.posix
 
   try {
     if (platform === 'darwin') {
       const home = deps?.homeDir ?? env.HOME ?? ''
       const bases: string[] = []
 
-      if (home) { bases.push(path.join(home, 'Library', 'Caches', 'puppeteer', 'chrome')) }
+      if (home) { bases.push(p.join(home, 'Library', 'Caches', 'puppeteer', 'chrome')) }
 
       if (env.PUPPETEER_CACHE_DIR) bases.push(env.PUPPETEER_CACHE_DIR)
 
-      bases.push(path.join(process.cwd(), 'chrome'))
+      bases.push(p.join(process.cwd(), 'chrome'))
       bases.push(
-        path.join(process.cwd(), 'dist', 'extension-js', 'chrome-binary')
+        p.join(process.cwd(), 'dist', 'extension-js', 'chrome-binary')
       )
 
       for (const base of bases) {
@@ -42,7 +43,7 @@ export function resolveFromPuppeteerCache (deps?: {
         for (const d of dirs) {
           // Newer layouts include chrome-mac or chrome-mac-arm64 subdirectory
           candidates.push(
-            path.join(
+            p.join(
               base,
               d,
               'chrome-mac',
@@ -53,7 +54,7 @@ export function resolveFromPuppeteerCache (deps?: {
             )
           )
           candidates.push(
-            path.join(
+            p.join(
               base,
               d,
               'chrome-mac-arm64',
@@ -65,7 +66,7 @@ export function resolveFromPuppeteerCache (deps?: {
           )
           // Older/alternate layout without chrome-mac*
           candidates.push(
-            path.join(
+            p.join(
               base,
               d,
               'Google Chrome for Testing.app',
@@ -89,7 +90,7 @@ export function resolveFromPuppeteerCache (deps?: {
 
       if (!lad) return null
 
-      const base = path.join(lad, 'puppeteer', 'chrome')
+      const base = p.join(lad, 'puppeteer', 'chrome')
       const dirs = listDirs(f, base)
       // Prefer win64-* if present, then win32-*
       const ordered = [
@@ -101,10 +102,10 @@ export function resolveFromPuppeteerCache (deps?: {
 
       for (const d of ordered) {
         // Typical subfolder layout: chrome-win64/chrome.exe or chrome-win32/chrome.exe
-        candidates.push(path.join(base, d, 'chrome-win64', 'chrome.exe'))
-        candidates.push(path.join(base, d, 'chrome-win32', 'chrome.exe'))
+        candidates.push(p.join(base, d, 'chrome-win64', 'chrome.exe'))
+        candidates.push(p.join(base, d, 'chrome-win32', 'chrome.exe'))
         // Fallback: direct chrome.exe under the version dir
-        candidates.push(path.join(base, d, 'chrome.exe'))
+        candidates.push(p.join(base, d, 'chrome.exe'))
       }
 
       return firstExisting(f, candidates)
@@ -113,12 +114,12 @@ export function resolveFromPuppeteerCache (deps?: {
     // Linux and others
     const xdg = env.XDG_CACHE_HOME
     const home = deps?.homeDir ?? env.HOME ?? ''
-    const cacheBase = xdg || (home ? path.join(home, '.cache') : undefined)
+    const cacheBase = xdg || (home ? p.join(home, '.cache') : undefined)
     const bases = [
-      ...(cacheBase ? [path.join(cacheBase, 'puppeteer', 'chrome')] : []),
+      ...(cacheBase ? [p.join(cacheBase, 'puppeteer', 'chrome')] : []),
       env.PUPPETEER_CACHE_DIR || '',
-      path.join(process.cwd(), 'chrome'),
-      path.join(process.cwd(), 'dist', 'extension-js', 'chrome-binary')
+      p.join(process.cwd(), 'chrome'),
+      p.join(process.cwd(), 'dist', 'extension-js', 'chrome-binary')
     ].filter(Boolean) as string[]
 
     for (const base of bases) {
@@ -127,10 +128,10 @@ export function resolveFromPuppeteerCache (deps?: {
 
       for (const d of dirs) {
         // Common subfolder names observed: chrome-linux, chrome-linux64
-        candidates.push(path.join(base, d, 'chrome-linux64', 'chrome'))
-        candidates.push(path.join(base, d, 'chrome-linux', 'chrome'))
+        candidates.push(p.join(base, d, 'chrome-linux64', 'chrome'))
+        candidates.push(p.join(base, d, 'chrome-linux', 'chrome'))
         // Fallback: direct file under the version dir
-        candidates.push(path.join(base, d, 'chrome'))
+        candidates.push(p.join(base, d, 'chrome'))
       }
 
       const hit = firstExisting(f, candidates)
