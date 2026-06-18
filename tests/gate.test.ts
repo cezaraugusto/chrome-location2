@@ -17,7 +17,7 @@ describe('no version probing during path resolution', () => {
     vi.restoreAllMocks()
   })
 
-  test('locateChromeOrExplain does not spawn the browser binary', async () => {
+  it('locateChromeOrExplain does not spawn the browser binary', async () => {
     Object.defineProperty(process, 'platform', {value: 'linux'})
     vi.doMock('../src/scan-unknown-platform-path', () => ({
       default: () => '/usr/bin/google-chrome'

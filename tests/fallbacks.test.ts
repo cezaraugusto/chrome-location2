@@ -8,7 +8,7 @@ describe('chrome-location2 fallbacks', () => {
     vi.resetModules()
   })
 
-  test('macOS: strict null, fallback finds Beta', async () => {
+  it('macOS: strict null, fallback finds Beta', async () => {
     const scanOsxPath = (await import('../src/scan-osx-path')).default as any
     const strict = scanOsxPath(false, {
       fs: {existsSync: (p: string) => p.includes('Google Chrome Beta.app')},
@@ -26,7 +26,7 @@ describe('chrome-location2 fallbacks', () => {
     ).toBe(true)
   })
 
-  test('macOS: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+  it('macOS: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
     const scanOsxPath = (await import('../src/scan-osx-path')).default as any
     const envPath = '/Applications/ChromeForTesting.app/Contents/MacOS/Chrome'
     const oldEnv = process.env.CHROME_FOR_TESTING_PATH
@@ -41,7 +41,7 @@ describe('chrome-location2 fallbacks', () => {
     process.env.CHROME_FOR_TESTING_PATH = oldEnv
   })
 
-  test('Windows: strict null, fallback finds Beta', async () => {
+  it('Windows: strict null, fallback finds Beta', async () => {
     const scanWindowsPath = (await import('../src/scan-windows-path'))
       .default as any
 
@@ -67,7 +67,7 @@ describe('chrome-location2 fallbacks', () => {
     expect(typeof result === 'string' && /Chrome Beta/.test(result)).toBe(true)
   })
 
-  test('Windows: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+  it('Windows: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
     const scanWindowsPath = (await import('../src/scan-windows-path'))
       .default as any
 
@@ -83,7 +83,7 @@ describe('chrome-location2 fallbacks', () => {
     expect(result).toBe(envPath)
   })
 
-  test('Linux/other: strict only stable; fallback tries beta/unstable and chromium', async () => {
+  it('Linux/other: strict only stable; fallback tries beta/unstable and chromium', async () => {
     const scanUnknown = (await import('../src/scan-unknown-platform-path'))
       .default as any
 
@@ -116,7 +116,7 @@ describe('chrome-location2 fallbacks', () => {
     expect(calls[0]).toBe('google-chrome')
   })
 
-  test('Linux/other: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
+  it('Linux/other: env override (CHROME_FOR_TESTING_PATH) wins', async () => {
     const scanUnknown = (await import('../src/scan-unknown-platform-path'))
       .default as any
 
@@ -136,7 +136,7 @@ describe('chrome-location2 fallbacks', () => {
     process.env.CHROME_FOR_TESTING_PATH = oldEnv
   })
 
-  test('macOS: falls back to Chromium when Chrome channels missing (only with fallback)', async () => {
+  it('macOS: falls back to Chromium when Chrome channels missing (only with fallback)', async () => {
     const scanOsxPath = (await import('../src/scan-osx-path')).default as any
     const strict = scanOsxPath(false, {
       fs: {existsSync: (p: string) => p.includes('Chromium.app')},
@@ -154,7 +154,7 @@ describe('chrome-location2 fallbacks', () => {
     )
   })
 
-  test('Windows: falls back to Chromium when Chrome channels missing (only with fallback)', async () => {
+  it('Windows: falls back to Chromium when Chrome channels missing (only with fallback)', async () => {
     const scanWindowsPath = (await import('../src/scan-windows-path'))
       .default as any
 
@@ -180,7 +180,7 @@ describe('chrome-location2 fallbacks', () => {
     expect(typeof result === 'string' && /Chromium/.test(result)).toBe(true)
   })
 
-  test('macOS: returns null when nothing found', async () => {
+  it('macOS: returns null when nothing found', async () => {
     const scanOsxPath = (await import('../src/scan-osx-path')).default as any
 
     expect(
@@ -191,7 +191,7 @@ describe('chrome-location2 fallbacks', () => {
     ).toBeNull()
   })
 
-  test('Windows: returns null when nothing found', async () => {
+  it('Windows: returns null when nothing found', async () => {
     const scanWindowsPath = (await import('../src/scan-windows-path'))
       .default as any
 
@@ -207,7 +207,7 @@ describe('chrome-location2 fallbacks', () => {
     ).toBeNull()
   })
 
-  test('Linux/other: returns null when which finds nothing', async () => {
+  it('Linux/other: returns null when which finds nothing', async () => {
     const scanUnknown = (await import('../src/scan-unknown-platform-path'))
       .default as any
 

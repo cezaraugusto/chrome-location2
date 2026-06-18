@@ -29,7 +29,7 @@ describe('getChromeVersion API (cross-platform, non-exec by default)', () => {
     vi.restoreAllMocks()
   })
 
-  test('windows: reads ProductVersion via PowerShell without launching GUI', async () => {
+  it('windows: reads ProductVersion via PowerShell without launching GUI', async () => {
     Object.defineProperty(process, 'platform', {value: 'win32'})
     execMock.mockImplementation((cmd: string, args: string[]) => {
       if (
@@ -55,7 +55,7 @@ describe('getChromeVersion API (cross-platform, non-exec by default)', () => {
     ).toBeUndefined()
   })
 
-  test('darwin: reads Info.plist (CFBundleShortVersionString)', async () => {
+  it('darwin: reads Info.plist (CFBundleShortVersionString)', async () => {
     Object.defineProperty(process, 'platform', {value: 'darwin'})
     existsMock.mockReturnValue(true)
     readMock.mockReturnValue(`
@@ -76,7 +76,7 @@ describe('getChromeVersion API (cross-platform, non-exec by default)', () => {
     expect(execMock).not.toHaveBeenCalled()
   })
 
-  test('linux: no metadata, returns null unless allowExec=true', async () => {
+  it('linux: no metadata, returns null unless allowExec=true', async () => {
     Object.defineProperty(process, 'platform', {value: 'linux'})
     const {getChromeVersion} = await import('../src/index')
     const v1 = getChromeVersion('/usr/bin/google-chrome')

@@ -8,7 +8,7 @@ import {describe, expect, test} from 'vitest'
 const BIN = path.join(__dirname, '..', 'bin.cjs')
 
 describe('chrome-location2 CLI', () => {
-  test('prints guidance and exit code 1 when not found', () => {
+  it('prints guidance and exit code 1 when not found', () => {
     let code = 0
     let out = ''
 
@@ -42,7 +42,7 @@ describe('chrome-location2 CLI', () => {
     }
   })
 
-  test('prints env override CHROME_FOR_TESTING_PATH when set and exists', () => {
+  it('prints env override CHROME_FOR_TESTING_PATH when set and exists', () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'cl2-bin-'))
     const fake = path.join(
       tmp,
