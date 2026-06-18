@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       pintor:
-        specifier: 0.3.0
-        version: 0.3.0
+        specifier: 0.3.1
+        version: 0.3.1
       userhome:
         specifier: ^1.0.0
         version: 1.0.1
@@ -1947,8 +1947,8 @@ packages:
     resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
-  pintor@0.3.0:
-    resolution: {integrity: sha512-ywpmLlAFhq5HZRL777RnbwpwaGx/I0olpnmp2r1frwRJdSJgc+0KXRqhDkc3xHj4KrUI+0J8d1XkDjiSU2w/5A==}
+  pintor@0.3.1:
+    resolution: {integrity: sha512-ZqE4JiWQ/MLr+goIMM/0Ar0bNcVBSNTpIYAbJtdp4NGqtT8byafVATivHZo4B5a6fsC8kWtgZk5p57MIUFUXiA==}
     engines: {node: '>=14.0.0'}
 
   possible-typed-array-names@1.1.0:
@@ -4422,7 +4422,7 @@ snapshots:
 
   picomatch@4.0.4: {}
 
-  pintor@0.3.0: {}
+  pintor@0.3.1: {}
 
   possible-typed-array-names@1.1.0: {}
 
