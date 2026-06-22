@@ -15,26 +15,109 @@
 - Supports macOS / Windows / Linux
 - Works both as an ES module or CommonJS
 
-New in this version:
-
-- Honors environment overrides: `CHROME_FOR_TESTING_PATH`, `CHROMIUM_BINARY`, `CHROME_BINARY`
-- On macOS, auto-detects Chrome for Testing at `/Applications/Google Chrome for Testing.app/...`
-- Optional helper to throw with a friendly install guide when nothing is found
-- CLI output is colorized (green on success, red on error)
-- New: Cross-platform version API that does not execute the browser by default
-
 ## Installation
 
 ```bash
-# Pick one
-pnpm add chrome-location2
 npm i chrome-location2
-yarn add chrome-location2
+```
+
+## Usage
+
+**Via Node.js (strict by default):**
+
+```js
+import chromeLocation from 'chrome-location2'
+
+// Strict (Stable only)
+console.log(chromeLocation())
+// => "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" or null
+
+// Enable fallback (Stable / Beta / Dev / Canary; includes Chromium on macOS/Windows; Chromium/Chromium-browser on Linux)
+console.log(chromeLocation(true))
+// => first found among Stable/Beta/Dev/Canary (or Chromium) or null
+
+// Throw with a friendly, copy-pasteable guide when not found (path-only resolution; never executes the browser)
+import {locateChromeOrExplain, getInstallGuidance, getChromeVersion} from 'chrome-location2'
+try {
+  const path = locateChromeOrExplain({allowFallback: true})
+  console.log(path)
+
+  // Cross-platform version (no exec by default)
+  const v = getChromeVersion(path)
+  console.log(v) // e.g. "120.0.6099.109" or null
+
+  // Opt-in: allow executing the binary to fetch version on platforms without metadata (e.g. Linux)
+  const v2 = getChromeVersion(path, {allowExec: true})
+  console.log(v2)
+} catch (e) {
+  console.error(String(e))
+  // Or print getInstallGuidance() explicitly
+}
+```
+
+**CommonJS:**
+
+```js
+const api = require('chrome-location2')
+const locateChrome = api.default || api
+```
+
+**Via CLI:**
+
+```bash
+npx chrome-location2
+# Strict (Stable only)
+
+npx chrome-location2 --fallback
+# Enable cascade (Stable / Beta / Dev / Canary)
+
+# Short flag
+npx chrome-location2 -f
+
+# Respect environment overrides
+CHROME_FOR_TESTING_PATH=/custom/path/to/chrome npx chrome-location2
+
+# Print Chrome version instead of path (no exec by default)
+npx chrome-location2 --chrome-version
+
+# Allow executing the binary if metadata is unavailable (mainly Linux)
+npx chrome-location2 --chrome-version --allow-exec
+```
+
+Exit behavior:
+
+- Prints the resolved path on success
+- Exits with code 1 and prints a guidance message if nothing suitable is found
+- When `--chrome-version` is used: prints version or exits with code 2 if not determinable without exec and `--allow-exec` was not provided
+
+Notes:
+
+- Output is colorized when printed to a TTY (green success, red error)
+- After you run `npx @puppeteer/browsers install chrome@stable` once, we auto-detect Chrome for Testing from Puppeteer's cache on all platforms. No env vars needed.
+
+### When nothing is found
+
+The helper returns actionable guidance (Vercel-like tone):
+
+```
+We couldn't find a Chrome/Chromium browser on this machine.
+
+Here's the fastest way to get set up:
+
+1) Install Chrome for Testing (recommended)
+   npx @puppeteer/browsers install chrome@stable
+
+Then re-run your command, and we'll detect it automatically.
+
+Alternatively, install Chromium via your system's package manager and re-run.
 ```
 
 ## Support table
 
-This table lists the default locations where Chrome is typically installed for each supported platform and channel. By default, only the Stable channel is checked. When fallback is enabled, the package checks these paths (in order) and returns the first one found.
+By default, only the Stable channel is checked. When fallback is enabled, Beta, Dev, and Canary (plus Chromium where applicable) are also checked (in that order) and the first existing path is returned.
+
+<details>
+<summary>Default locations checked per platform and channel</summary>
 
 <table>
   <thead>
@@ -159,114 +242,9 @@ This table lists the default locations where Chrome is typically installed for e
   </tbody>
 </table>
 
+</details>
+
 Returns the first existing path found (given selected channels), or <code>null</code> if none are found.
-
-## Usage
-
-**Via Node.js (strict by default):**
-
-```js
-import chromeLocation from 'chrome-location2'
-
-// Strict (Stable only)
-console.log(chromeLocation())
-// => "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" or null
-
-// Enable fallback (Stable / Beta / Dev / Canary; includes Chromium on macOS/Windows; Chromium/Chromium-browser on Linux)
-console.log(chromeLocation(true))
-// => first found among Stable/Beta/Dev/Canary (or Chromium) or null
-
-// Throw with a friendly, copy-pasteable guide when not found (path-only resolution; never executes the browser)
-import {locateChromeOrExplain, getInstallGuidance, getChromeVersion} from 'chrome-location2'
-try {
-  const path = locateChromeOrExplain({allowFallback: true})
-  console.log(path)
-
-  // Cross-platform version (no exec by default)
-  const v = getChromeVersion(path)
-  console.log(v) // e.g. "120.0.6099.109" or null
-
-  // Opt-in: allow executing the binary to fetch version on platforms without metadata (e.g. Linux)
-  const v2 = getChromeVersion(path, {allowExec: true})
-  console.log(v2)
-} catch (e) {
-  console.error(String(e))
-  // Or print getInstallGuidance() explicitly
-}
-```
-
-**CommonJS:**
-
-```js
-const api = require('chrome-location2')
-const locateChrome = api.default || api
-
-// Strict (Stable only)
-console.log(locateChrome())
-
-// With fallback enabled
-console.log(locateChrome(true))
-
-// Helper that throws with guidance
-try {
-  const p = (
-    api.locateChromeOrExplain || ((o) => locateChrome(o?.allowFallback))
-  )({allowFallback: true})
-  console.log(p)
-} catch (e) {
-  console.error(String(e))
-}
-```
-
-**Via CLI:**
-
-```bash
-npx chrome-location2
-# Strict (Stable only)
-
-npx chrome-location2 --fallback
-# Enable cascade (Stable / Beta / Dev / Canary)
-
-# Short flag
-npx chrome-location2 -f
-
-# Respect environment overrides
-CHROME_FOR_TESTING_PATH=/custom/path/to/chrome npx chrome-location2
-
-# Print Chrome version instead of path (no exec by default)
-npx chrome-location2 --chrome-version
-
-# Allow executing the binary if metadata is unavailable (mainly Linux)
-npx chrome-location2 --chrome-version --allow-exec
-```
-
-Exit behavior:
-
-- Prints the resolved path on success
-- Exits with code 1 and prints a guidance message if nothing suitable is found
-- When `--chrome-version` is used: prints version or exits with code 2 if not determinable without exec and `--allow-exec` was not provided
-
-Notes:
-
-- Output is colorized when printed to a TTY (green success, red error)
-- After you run `npx @puppeteer/browsers install chrome@stable` once, we auto-detect Chrome for Testing from Puppeteer's cache on all platforms. No env vars needed.
-
-### When nothing is found
-
-The helper returns actionable guidance (Vercel-like tone):
-
-```
-We couldn't find a Chrome/Chromium browser on this machine.
-
-Here's the fastest way to get set up:
-
-1) Install Chrome for Testing (recommended)
-   npx @puppeteer/browsers install chrome@stable
-
-Then re-run your command , we'll detect it automatically.
-
-Alternatively, install Chromium via your system's package manager and re-run.
-```
 
 ## API
 
@@ -298,10 +276,14 @@ If any of these environment variables are set and point to an existing binary, t
 ## Related projects
 
 - [brave-location](https://github.com/cezaraugusto/brave-location)
+- [chromium-location](https://github.com/cezaraugusto/chromium-location)
 - [edge-location](https://github.com/cezaraugusto/edge-location)
 - [firefox-location2](https://github.com/cezaraugusto/firefox-location2)
+- [safari-location2](https://github.com/cezaraugusto/safari-location2)
 - [opera-location2](https://github.com/cezaraugusto/opera-location2)
 - [vivaldi-location2](https://github.com/cezaraugusto/vivaldi-location2)
+- [waterfox-location](https://github.com/cezaraugusto/waterfox-location)
+- [librewolf-location](https://github.com/cezaraugusto/librewolf-location)
 - [yandex-location](https://github.com/cezaraugusto/yandex-location)
 
 ## License
