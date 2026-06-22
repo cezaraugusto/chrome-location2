@@ -29,7 +29,7 @@ try {
     '1) Install Chrome for Testing (recommended)',
     '   npx @puppeteer/browsers install chrome@stable',
     '',
-    "Then re-run your command , we'll detect it automatically.",
+    "Then re-run your command, and we'll detect it automatically.",
     '',
     "Alternatively, install Chromium via your system's package manager and re-run."
   ].join('\n')
