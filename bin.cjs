@@ -24,12 +24,12 @@ try {
   const guidance = [
     "We couldn't find a Chrome/Chromium browser on this machine.",
     '',
-    "Here's the fastest way to get set up:",
+    'To install one:',
     '',
     '1) Install Chrome for Testing (recommended)',
     '   npx @puppeteer/browsers install chrome@stable',
     '',
-    "Then re-run your command, and we'll detect it automatically.",
+    'Re-run your command afterward and it will be detected automatically.',
     '',
     "Alternatively, install Chromium via your system's package manager and re-run."
   ].join('\n')

@@ -36,7 +36,7 @@ console.log(chromeLocation())
 console.log(chromeLocation(true))
 // => first found among Stable/Beta/Dev/Canary (or Chromium) or null
 
-// Throw with a friendly, copy-pasteable guide when not found (path-only resolution; never executes the browser)
+// Throw with an install guide when not found (path-only resolution; never executes the browser)
 import {locateChromeOrExplain, getInstallGuidance, getChromeVersion} from 'chrome-location2'
 try {
   const path = locateChromeOrExplain({allowFallback: true})
@@ -97,17 +97,17 @@ Notes:
 
 ### When nothing is found
 
-The helper returns actionable guidance (Vercel-like tone):
+When nothing is found, the helper throws with this message:
 
 ```
 We couldn't find a Chrome/Chromium browser on this machine.
 
-Here's the fastest way to get set up:
+To install one:
 
 1) Install Chrome for Testing (recommended)
    npx @puppeteer/browsers install chrome@stable
 
-Then re-run your command, and we'll detect it automatically.
+Re-run your command afterward and it will be detected automatically.
 
 Alternatively, install Chromium via your system's package manager and re-run.
 ```
