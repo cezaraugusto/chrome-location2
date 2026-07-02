@@ -54,7 +54,7 @@
     "guesstimate"
   ],
   "dependencies": {
-    "pintor": "0.3.2",
+    "pintor": "0.3.3",
     "userhome": "^1.0.1",
     "which": "^7.0.0"
   },
